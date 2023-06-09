@@ -28,25 +28,32 @@ app.post('/api/notes', (req, res) => {
     console.info(`${req.method} request received to add a note`)
     let { title, text } = req.body
 
-    if (!title) {
-        title = "Untitled"
+    if(title && text) {
+        const newNote = {
+            title,
+            text,
+        }
     }
+    // if (!title) {
+    //     title = "Untitled"
+    // }
         
-    let newNote;
+    // let newNote;
         fs.readFile('./db/db.json', 'utf8', (err, data) => {
             if (err) {
                 console.log(err);
             } else {
                 const parsedNote = JSON.parse(data);
-                const lastID = parsedNote[parsedNote.length].id;
-                const newID = lastID + 1;
+                // const lastID = parsedNote[parsedNote.length].id;
+                // const newID = lastID + 1;
 
-                newNote = {
-                            id: newID,
-                            title,
-                            text,
-                        };
+                // newNote = {
+                //             id: newID,
+                //             title,
+                //             text,
+                //         };
                 parsedNote.push(newNote);
+                
 
                 fs.writeFile(
                     './db/db.json',
@@ -72,42 +79,42 @@ app.post('/api/notes', (req, res) => {
     
     );
 
-    app.delete('/api/notes/:id', (req, res) => {
-        console.info(`${req.method} request received to delete a note`)
-        let { id } = req.params
-        id = parseInt(id)
+    // app.delete('/api/notes/:id', (req, res) => {
+    //     console.info(`${req.method} request received to delete a note`)
+    //     let { id } = req.params
+    //     id = parseInt(id)
 
-        fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            if (err) {
-                console.log(err);
-                res.status(500).json('Error in deleting note. Could not open database file.');
-            } else {
-                let parsedNote = JSON.parse(data);
-                parsedNote = parsedNote.filter(function( obj ) {
-                    console.log({a:obj.id, b:id})
-                    return obj.id !== id;
-                  });
-                  console.log(parsedNote)
+    //     fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    //         if (err) {
+    //             console.log(err);
+    //             res.status(500).json('Error in deleting note. Could not open database file.');
+    //         } else {
+    //             let parsedNote = JSON.parse(data);
+    //             parsedNote = parsedNote.filter(function( obj ) {
+    //                 console.log({a:obj.id, b:id})
+    //                 return obj.id !== id;
+    //               });
+    //               console.log(parsedNote)
 
-                fs.writeFile(
-                    './db/db.json',
-                    JSON.stringify(parsedNote, null, 4),
-                    // unsure about the 4 what is that?
-                    (writeErr) =>
-                        writeErr
-                        ? console.error(writeErr)
-                        : console.info('Successfully updated notes')
-                        );
-                        res.status(201).json({status:"Success! Removed note"});
-            }
-        });
+    //             fs.writeFile(
+    //                 './db/db.json',
+    //                 JSON.stringify(parsedNote, null, 4),
+    //                 // unsure about the 4 what is that?
+    //                 (writeErr) =>
+    //                     writeErr
+    //                     ? console.error(writeErr)
+    //                     : console.info('Successfully updated notes')
+    //                     );
+    //                     res.status(201).json({status:"Success! Removed note"});
+    //         }
+    //     });
 
 
       
-        }
-        //  else {
-        // }
-    )
+    //     }
+    //     //  else {
+    //     // }
+    // )
 
 
 app.listen(port, () =>
