@@ -2,8 +2,10 @@ const fs = require('fs');
 const express = require ('express');
 const path = require('path');
 const port = 3001;
-const app = express();
 const notesDB = require('./db/db.json')
+const { v4: uuidv4 } = require('uuid');
+
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -16,31 +18,35 @@ res.sendFile(path.join(__dirname, '/public/index.html')));
 app.get('/notes', (req, res) =>
 res.sendFile(path.join(__dirname, '/public/notes.html')));
 
-app.get('/api/notes', (req, res) => res.json(notesDB))
+app.get('/api/notes', (req, res) => fs.readFile('./db/db.json', 'utf8', (err, data) => {
+    if(err) {
+        return;
+    }
+    res.json(JSON.parse(data))}));
+// Use fs to read file, then chain (.then) with the parameter of data
 
 app.post('/api/notes', (req, res) => {
     console.info(`${req.method} request received to add a note`)
-    const {title, text} = req.body
-
-    if (title && text) {
-        const newNote = {
-            title,
-            text,
-        };
-
-        fs.readFile('./db/db.json', 'utf-8', (err, data) => {
+    const newNote = {
+        id: uuidv4(),
+        title: req.body.title,
+        text: req.body.text,
+    }
+        fs.readFile('./db/db.json', 'utf8', (err, data) => {
             if (err) {
                 console.log(err);
             } else {
                 const parsedNote = JSON.parse(data);
                 parsedNote.push(newNote);
+                
 
                 fs.writeFile(
-                    './db/db.json', JSON.stringify(parsedNote, null, 4),
+                    './db/db.json',
+                    JSON.stringify(parsedNote),
                     (writeErr) =>
-                    writeErr
-                    ? console.error(writeErr)
-                    : console.info('Successfully updated notes')
+                        writeErr
+                        ? console.error(writeErr)
+                        : console.info('Successfully updated notes')
                 );
             }
         });
@@ -48,157 +54,39 @@ app.post('/api/notes', (req, res) => {
         const response = {
             status: 'success',
             body: newNote,
-        };
-
-        console.log(response);
-        res.status(201).json(response);
-    } else {
-        res.status(500).json('Error in posting note');
-    }
-});
-
-app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// app.get('/api/notes', (req, res) => fs.readFile('./db/db.json', 'utf8', (err, data) => {
-//     if(err) {
-//         return;
-//     }
-//     res.json(JSON.parse(data))}));
-// // Use fs to read file, then chain (.then) with the parameter of data
-
-// app.post('/api/notes', (req, res) => {
-//     console.info(`${req.method} request received to add a note`)
-//     let { title, text } = req.body
-
-//     // if(title && text) {
-//     //     const newNote = {
-//     //         title,
-//     //         text,
-//     //     }
-//     // }
-//     if (!title) {
-//         title = "Untitled"
-//     }
-        
-//     let newNote;
-//         fs.readFile('./db/db.json', 'utf8', (err, data) => {
-//             if (err) {
-//                 console.log(err);
-//             } else {
-//                 const parsedNote = JSON.parse(data);
-//                 // const lastID = parsedNote[parsedNote.length].id;
-//                 // const newID = lastID + 1;
-
-//                 // newNote = {
-//                 //             id: newID,
-//                 //             title,
-//                 //             text,
-//                 //         };
-//                 parsedNote.push(newNote);
-                
-
-//                 fs.writeFile(
-//                     './db/db.json',
-//                     JSON.stringify(parsedNote, null, 4),
-//                     (writeErr) =>
-//                         writeErr
-//                         ? console.error(writeErr)
-//                         : console.info('Successfully updated notes')
-//                 );
-//             }
-//         });
-
-//         const response = {
-//             status: 'success',
-//             body: newNote,
-//           };
+          };
       
-//           console.log(response);
-//           res.status(201).json(response);
-//           return notesDB;
-//     }
-    
-    
-//     );
+          console.log(response);
+          res.status(201).json(response);
+          return notesDB;
 
-//     app.delete('/api/notes/:id', (req, res) => {
-//         console.info(`${req.method} request received to delete a note`)
-//         let { id } = req.params
-//         id = parseInt(id)
+        }) 
 
-//         fs.readFile('./db/db.json', 'utf8', (err, data) => {
-//             if (err) {
-//                 console.log(err);
-//                 res.status(500).json('Error in deleting note. Could not open database file.');
-//             } else {
-//                 let parsedNote = JSON.parse(data);
-//                 parsedNote = parsedNote.filter(function( obj ) {
-//                     console.log({a:obj.id, b:id})
-//                     return obj.id !== id;
-//                   });
-//                   console.log(parsedNote)
+app.delete('api/notes/:id', (req, res) => {
+        console.info(`${req.method} request received to delete a note`)
+        const id = req.body.id
 
-//                 fs.writeFile(
-//                     './db/db.json',
-//                     JSON.stringify(parsedNote, null, 4),
-//                     // unsure about the 4 what is that?
-//                     (writeErr) =>
-//                         writeErr
-//                         ? console.error(writeErr)
-//                         : console.info('Successfully updated notes')
-//                         );
-//                         res.status(201).json({status:"Success! Removed note"});
-//             }
-//         });
+        fs.readFile(path.join(__dirname, notesDB, 'utf8'), (err, data) => {
+            if (err) {
+                console.log(err)
+                res.status(500).json('Error in deleting note. Could not open database file.')
+            } else {
+                const deletedNote = JSON.parse(data)
+                const index = deletedNote.findIndex((note) => note.id === id);
+                deletedNote.splice(index, 1);
 
+                fs.writeFile(
+                    path.join(__dirname, notesDB),
+                    JSON.stringify(deletedNote, null, 4),
 
-      
-//         }
-//         //  else {
-//         // }
-//     )
+                    (writeErr) => writeErr ? console.error(writeErr) : console.info('Successfully updated notes')
 
+                    
+                )
+                res.status(201).json({status: 'Success! Note removed'})
+            }
+        })
+})
 
-// app.listen(port, () =>
-// console.log(`App listening at http://localhost:${port}`))
+app.listen(port, () =>
+console.log(`App listening at http://localhost:${port}`))
