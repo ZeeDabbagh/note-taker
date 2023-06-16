@@ -62,21 +62,21 @@ app.post('/api/notes', (req, res) => {
 
         }) 
 
-app.delete('api/notes/:id', (req, res) => {
-        console.info(`${req.method} request received to delete a note`)
-        const id = req.body.id
+app.delete('/api/notes/:id', (req, res) => {
+        console.log(`${req.method} request received to delete a note`)
+        const id = req.params.id
 
-        fs.readFile(path.join(__dirname, notesDB, 'utf8'), (err, data) => {
+        fs.readFile( "./db/db.json", 'utf8', (err, data) => {
             if (err) {
                 console.log(err)
-                res.status(500).json('Error in deleting note. Could not open database file.')
+                res.status(500).json(err)
             } else {
                 const deletedNote = JSON.parse(data)
                 const index = deletedNote.findIndex((note) => note.id === id);
                 deletedNote.splice(index, 1);
 
                 fs.writeFile(
-                    path.join(__dirname, notesDB),
+                    './db/db.json',
                     JSON.stringify(deletedNote, null, 4),
 
                     (writeErr) => writeErr ? console.error(writeErr) : console.info('Successfully updated notes')
