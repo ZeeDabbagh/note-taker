@@ -15,7 +15,7 @@ This is a note taker app that can be used to write and save notes. This applicat
 - [Contribution](#contributing)
 - [Questions](#questionsquestions)
 - [Linke to Deployed App](#deployed-application)
-- [Screenshot](#screenshot)
+- [Screenshots](#screenshots)
 
 ## Installation
 
@@ -49,5 +49,7 @@ And make sure to follow me on Github at https://github.com/zeeDabbagh!
 
 https://hidden-everglades-16679-42301e10daac.herokuapp.com/notes
 
-## Screenshot
+## Screenshots
 ![deployedSS](./assets/notetaker-ss.png)
+![deployedSS](./assets/notetaker-ss2.png)
+![deployedSS](./assets/notetaker-ss3.png)
