@@ -47,7 +47,7 @@ And make sure to follow me on Github at https://github.com/zeeDabbagh!
 
 ## Deployed Application 
 
-https://hidden-everglades-16679-42301e10daac.herokuapp.com/notes
+https://hidden-everglades-16679-42301e10daac.herokuapp.com/
 
 ## Screenshots
 ![deployedSS](./assets/notetaker-ss.png)
